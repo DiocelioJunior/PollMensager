@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Cobranças</title>
+    <style>
+        body {
+            font-family: Arial;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
+        aside {
+            width: 220px;
+            background: #1d1f21;
+            color: white;
+            padding: 20px;
+        }
+        aside h2 {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        aside a {
+            display: block;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #333;
+            text-decoration: none;
+            color: white;
+            border-radius: 6px;
+        }
+        aside a:hover {
+            background: #444;
+        }
+        main {
+            flex: 1;
+            padding: 20px;
+            background: #f1f1f1;
+            overflow-y: auto;
+        }
+        #btnAdd {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: #0b8fda;
+            border: none;
+            padding: 18px 22px;
+            color: white;
+            border-radius: 50%;
+            font-size: 26px;
+            cursor: pointer;
+        }
+        /* Lista de clientes em cards */
+        .cliente-card {
+            background: white;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+        .cliente-linha {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+        .label {
+            font-weight: bold;
+        }
+
+        /* Modal */
+        #modal {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        #modalContent {
+            background: white;
+            padding: 20px;
+            width: 350px;
+            border-radius: 8px;
+        }
+        #modalContent input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+        #modalContent button {
+            width: 100%;
+            padding: 10px;
+            background: #0b8fda;
+            color: white;
+            border: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <aside>
+        <h2>📌 SISTEMA</h2>
+        <a href="#">Clientes</a>
+        <a href="#">Logs</a>
+        <a href="#">Configurações</a>
+    </aside>
+
+    <main>
+        <h1>Cadastro de Clientes</h1>
+
+        <div id="listaClientes"></div>
+    </main>
+
+    <button id="btnAdd">+</button>
+
+    <!-- MODAL -->
+    <div id="modal">
+        <div id="modalContent">
+            <h3>Novo Cliente</h3>
+            <input type="text" id="nome" placeholder="Nome">
+            <input type="text" id="whatsapp" placeholder="WhatsApp (somente números)">
+            <input type="number" id="valor" placeholder="Valor da cobrança">
+            <input type="number" id="diaCobranca" placeholder="Dia do vencimento">
+            <button onclick="salvarCliente()">Cadastrar</button>
+        </div>
+    </div>
+
+<script>
+    document.getElementById("btnAdd").onclick = () => {
+        document.getElementById("modal").style.display = "flex";
+    };
+
+    function fecharModal() {
+        document.getElementById("modal").style.display = "none";
+    }
+
+    async function carregarClientes() {
+        let res = await fetch("/api/clientes");
+        let clientes = await res.json();
+
+        let lista = document.getElementById("listaClientes");
+        lista.innerHTML = "";
+
+        clientes.forEach(c => {
+            lista.innerHTML += `
+                <div class="cliente-card">
+                    <div class="cliente-linha">
+                        <span class="label">Nome:</span> ${c.nome}
+                    </div>
+                    <div class="cliente-linha">
+                        <span class="label">WhatsApp:</span> ${c.whatsapp}
+                    </div>
+                    <div class="cliente-linha">
+                        <span class="label">Valor:</span> R$ ${c.valor}
+                    </div>
+                    <div class="cliente-linha">
+                        <span class="label">Vencimento:</span> Dia ${c.diaCobranca}
+                    </div>
+                    <div class="cliente-linha">
+                        <span class="label">Última cobrança:</span> ${c.ultimaCobranca ? c.ultimaCobranca : "Nunca enviado"}
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    async function salvarCliente() {
+        const cliente = {
+            nome: document.getElementById("nome").value,
+            whatsapp: document.getElementById("whatsapp").value,
+            valor: document.getElementById("valor").value,
+            diaCobranca: document.getElementById("diaCobranca").value,
+            ultimaCobranca: null
+        };
+
+        await fetch("/api/clientes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(cliente)
+        });
+
+        fecharModal();
+        carregarClientes();
+    }
+
+    carregarClientes();
+</script>
+
+</body>
+</html>

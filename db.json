@@ -1,0 +1,18 @@
+[
+  {
+    "id": 2,
+    "nome": "Maria",
+    "whatsapp": "5516992846301",
+    "valor": 200,
+    "diaCobranca": 1,
+    "ultimaCobranca": "2025-11-1"
+  },
+  {
+    "id": 1764641861370,
+    "nome": "Diocélio Junior Rocha",
+    "whatsapp": "5516988177812",
+    "valor": 500,
+    "diaCobranca": 1,
+    "ultimaCobranca": "2025-12-1"
+  }
+]
